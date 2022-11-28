@@ -7,13 +7,33 @@
 
 import Foundation
 
+struct Stack<T> {
+    private var elements: [T] = []
+    
+    func isEmpty() -> Bool {
+        return elements.isEmpty
+    }
+    
+    mutating func push(newElement: T) {
+        return elements.append(newElement)
+    }
+    
+    mutating func pop() {
+        elements.removeLast()
+    }
+    
+    func getLast() -> T? {
+        return self.isEmpty() ? nil : elements.last
+    }
+}
+
 var funcDict: Dictionary<String, String> = [:]
 
 print(">", terminator: "")
 
 while var line: String = readLine() {
     
-    //    get rid of all spaces
+    // get rid of all spaces
     //    line = line.replacingOccurrences(of: " ", with: "") // non functional way
     line = line.filter {$0 != " "} // functional way
     
@@ -42,18 +62,35 @@ while var line: String = readLine() {
         let nameOfFunc: String = String(group.1)
         var expressionOfFunc: String = String(group.2)
         
-        for (key, value) in funcDict {
-            expressionOfFunc = expressionOfFunc.replacingOccurrences(of: key, with: value)
+        if !expressionOfFunc.reduce ([Character](), { // we're here to show how smart we are :)
+            // $0 - stack // yeah, can be done with "stack, symbol in", but check previous line (just kidding 😉)
+            // $1 - each symbol in expressionOfFunc
+            if $1 == "(" {
+                return $0 + [$1] // $0.append($1) doesn't work, because $0 is immutable in reduce
+            } else if $1 == ")" && $0.last == "(" {
+                return $0.dropLast()
+            } else if $1 == ")" { // if two previous statements are false -> expression is invalid
+                return $0 + [$1]
+            } else {
+                return $0
+            }
+        }).isEmpty {
+            print("Please enter a string with correct parentheses balance!")
+        } else {
+            for (key, value) in funcDict {
+                expressionOfFunc = expressionOfFunc.replacingOccurrences(of: key, with: value)
+            }
+            
+            funcDict[nameOfFunc] = expressionOfFunc
+            print(funcDict)
         }
         
-        funcDict[nameOfFunc] = expressionOfFunc
-        print(funcDict)
     } else if let group = try calculationPattern.wholeMatch(in: line) {
         let nameOfFunc: String = String(group.1)
         let value: String = String(group.2)
         print(nameOfFunc, value)
     } else {
-        print("Please enter a valid string")
+        print("Please enter a valid string!")
     }
     
     print(">", terminator: "")
