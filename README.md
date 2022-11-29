@@ -1,6 +1,6 @@
 # FuncCalc
 
-**Lab work**
+**Term Project**
 
 **Uni:** `MIREA – Russian Technological University`
 
@@ -13,7 +13,7 @@
 ### Non-functional requirements
 
 * Programming Language: `Swift`
-* Use some fuctional programing patterns: `closures`, `pure finctions`, `map-filter-reduce`, `etc.`
+* Use some fuctional programing patterns: `closures`, `pure finctions`, `higher-order functions` (i.e. map, filter, reduce), `etc.`
 
 ### Functional requirements
 
@@ -25,7 +25,6 @@ f1(x) = x^2
 
 >f2(x) = 3*x
 f2(x) = 3*x
-
 ```
 
 #### Defining functions via previosly defined functions
@@ -49,7 +48,6 @@ f3(x) = x^2 + 3*x
 
 >f3(10)
 f3(10) = 130
-
 ```
 
 #### Taking symbolic derivative
