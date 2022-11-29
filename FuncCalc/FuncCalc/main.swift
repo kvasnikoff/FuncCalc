@@ -62,17 +62,15 @@ while var line: String = readLine() {
         let nameOfFunc: String = String(group.1)
         var expressionOfFunc: String = String(group.2)
         
-        if !expressionOfFunc.reduce ([Character](), { // we're here to show how smart we are :)
-            // $0 - stack // yeah, can be done with "stack, symbol in", but check previous line (just kidding 😉)
-            // $1 - each symbol in expressionOfFunc
-            if $1 == "(" {
-                return $0 + [$1] // $0.append($1) doesn't work, because $0 is immutable in reduce
-            } else if $1 == ")" && $0.last == "(" {
-                return $0.dropLast()
-            } else if $1 == ")" { // if two previous statements are false -> expression is invalid
-                return $0 + [$1]
+        if !expressionOfFunc.reduce ([Character](), { stack, symbol in // we're here to show how smart we are :)
+            if symbol == "(" {
+                return stack + [symbol] // stack.append(symbol) doesn't work, because "stack" is immutable in reduce
+            } else if symbol == ")" && stack.last == "(" {
+                return stack.dropLast()
+            } else if symbol == ")" { // if two previous statements are false -> expression is invalid, so add symbol to the stack and it will be not empty at the end
+                return stack + [symbol]
             } else {
-                return $0
+                return stack
             }
         }).isEmpty {
             print("Please enter a string with correct parentheses balance!")
