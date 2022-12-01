@@ -64,11 +64,12 @@ f3’(x) = 2x + 3
 ## Tasks to accomplish functional requirements
 - [x] Get rid of all spaces inside entered string
 - [x] Write regular expressions to indentify command type (expression `f1(x) = x^2`, calculation `f3(10)` or invalid)
-- [x] Parse expression-commands via regex and save results to Dictionary, where key is a name of a function (e.g. `f3(x)`) and value is mathematical expression (e.g. `x^2 + 3*x`)
+- [x] Parse expression-commands via regex and save results to Dictionary, where key is a name of a function (e.g. `f`) and value is struct containing symbol (e.g. `x`) and mathematical expression (e.g. `x^2 + 3*x`). So f(x) will overwrite f(y) and that's good, because when we calculate the function value, we don't use any symbol, only function name: `f(10)`
 - [x] Transform functions defined by previosly defined functions into original representation (e.g. `f1(x) + f2(x)` -> `x^2 + 3*x`)
 - [x] Study [Shunting_yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm) to translate `Infix notation` to `Reverse Polish Notation`
 - [x] Implement Stack data structure
 - [x] Check for parentheses balance
+- [x] Detect numbers with many digits and decimal point as single token
 - [ ] Implement Queue data structure
 - [ ] Implement token detection
 - [ ] Implement [Shunting_yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm)

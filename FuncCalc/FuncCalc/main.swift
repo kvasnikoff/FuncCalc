@@ -7,6 +7,18 @@
 
 import Foundation
 
+//enum Token {
+//    case add
+//    case subtract
+//    case multiply
+//    case divide
+//    case power
+//    case number
+//    case rightParenthesis
+//    case leftParenthesis
+//    case OTHER
+//}
+
 struct Stack<T> {
     private var elements: [T] = []
     
@@ -27,7 +39,17 @@ struct Stack<T> {
     }
 }
 
-var funcDict: Dictionary<String, String> = [:]
+struct ExpressionInfo {
+    var symbol: String
+    var expression: String
+}
+// Example of Dict
+// f(x) = 5.5*x+4^2
+// key = f
+// value = ExpressionInfo("x", ExpressionInfo)
+// So f(x) will overwrite f(y) inside dictionary and that's good, because when we calculate the function value, we don't use any symbol, only function name: `f(10)`
+// but when we define functions via previosly defined functions, e.g. `f1(x) = f(x) + 4`, f(x) and f(y), we'll check for symbol and everything we'll be fine
+var funcDict: Dictionary<String, ExpressionInfo> = [:]
 
 print(">", terminator: "")
 
@@ -47,7 +69,7 @@ while var line: String = readLine() {
     // [=] - equials sigh
     // [0-9a-zA-Z\+\-\*\/\^\.\(\)]+ - any characters, digits (with point), and arithmetic operations (+, -, *, /, ^) – one or more
     // $ – ending of expression
-    let expressionPattern: Regex = /^([a-zA-Z]+[0-9a-zA-Z_]*[(][a-z][)])[=]([0-9a-zA-Z\+\-\*\/\^\.\(\)]+)$/
+    let expressionPattern: Regex = /^([a-zA-Z]+[0-9a-zA-Z_]*)[(]([a-z])[)][=]([0-9a-zA-Z\+\-\*\/\^\.\(\)]+)$/
     
     // Name: calculationPattern
     // Example: f1(10)
@@ -60,7 +82,8 @@ while var line: String = readLine() {
     
     if let group = try expressionPattern.wholeMatch(in: line) {
         let nameOfFunc: String = String(group.1)
-        var expressionOfFunc: String = String(group.2)
+        let symbol: String = String(group.2)
+        var expressionOfFunc: String = String(group.3)
         
         if !expressionOfFunc.reduce ([Character](), { stack, symbol in // we're here to show how smart we are :)
             if symbol == "(" {
@@ -76,10 +99,10 @@ while var line: String = readLine() {
             print("Please enter a string with correct parentheses balance!")
         } else {
             for (key, value) in funcDict {
-                expressionOfFunc = expressionOfFunc.replacingOccurrences(of: key, with: value)
+                expressionOfFunc = expressionOfFunc.replacingOccurrences(of: key + "(" + value.symbol + ")", with: value.expression)
             }
             
-            funcDict[nameOfFunc] = expressionOfFunc
+            funcDict[nameOfFunc] = ExpressionInfo(symbol: symbol, expression: expressionOfFunc)
             print(funcDict)
         }
         
@@ -87,6 +110,36 @@ while var line: String = readLine() {
         let nameOfFunc: String = String(group.1)
         let value: String = String(group.2)
         print(nameOfFunc, value)
+        
+        
+        guard let expressionOfFunc = funcDict[nameOfFunc]?.expression else {
+            print("Please enter a valid function name!")
+            continue
+        }
+        
+        let symbolsArray = expressionOfFunc.map { String($0) }
+        
+        var postfixQueue: [String] = []
+        
+        // var currentToken: Token = .OTHER
+        
+        var currentToken: String = ""
+        
+        var currentIndex: Int = 0
+        
+        while currentIndex < symbolsArray.count {
+            currentToken += symbolsArray[currentIndex]
+            while currentIndex < symbolsArray.count - 1 && (Double(symbolsArray[currentIndex]) != nil || symbolsArray[currentIndex] == ".") && (Double(symbolsArray[currentIndex + 1]) != nil || symbolsArray[currentIndex + 1] == "."){ // swift checks conditions in order, so it never goes to index + 1 if currentIndex < symbolsArray.count - 1
+                
+                currentIndex += 1
+                currentToken += symbolsArray[currentIndex]
+            }
+            
+            print(currentToken)
+            
+            currentToken = ""
+            currentIndex += 1
+        }
     } else {
         print("Please enter a valid string!")
     }
