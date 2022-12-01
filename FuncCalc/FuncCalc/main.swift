@@ -103,13 +103,13 @@ while var line: String = readLine() {
             }
             
             funcDict[nameOfFunc] = ExpressionInfo(symbol: symbol, expression: expressionOfFunc)
-            print(funcDict)
+            print("\(nameOfFunc)(\(symbol))=\(expressionOfFunc)")
         }
         
     } else if let group = try calculationPattern.wholeMatch(in: line) {
         let nameOfFunc: String = String(group.1)
         let value: String = String(group.2)
-        print(nameOfFunc, value)
+        //print(nameOfFunc, value)
         
         
         guard let expressionOfFunc = funcDict[nameOfFunc]?.expression else {
@@ -117,7 +117,7 @@ while var line: String = readLine() {
             continue
         }
         
-        let symbolsArray = expressionOfFunc.map { String($0) }
+        let symbolsArray = expressionOfFunc.map { String($0) == funcDict[nameOfFunc]?.symbol ?  String(value) : String($0) } // convert to Array of Strings and replace symbol with value
         
         var postfixQueue: [String] = []
         
@@ -129,7 +129,7 @@ while var line: String = readLine() {
         
         while currentIndex < symbolsArray.count {
             currentToken += symbolsArray[currentIndex]
-            while currentIndex < symbolsArray.count - 1 && (Double(symbolsArray[currentIndex]) != nil || symbolsArray[currentIndex] == ".") && (Double(symbolsArray[currentIndex + 1]) != nil || symbolsArray[currentIndex + 1] == "."){ // swift checks conditions in order, so it never goes to index + 1 if currentIndex < symbolsArray.count - 1
+            while currentIndex < symbolsArray.count - 1 && (Double(symbolsArray[currentIndex]) != nil || symbolsArray[currentIndex] == ".") && (Double(symbolsArray[currentIndex + 1]) != nil || symbolsArray[currentIndex + 1] == "."){ // swift checks conditions in order, so it never goes to `index + 1` if `currentIndex < symbolsArray.count - 1`
                 
                 currentIndex += 1
                 currentToken += symbolsArray[currentIndex]

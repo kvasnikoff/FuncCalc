@@ -70,7 +70,7 @@ f3’(x) = 2x + 3
 - [x] Implement Stack data structure
 - [x] Check for parentheses balance
 - [x] Detect numbers with many digits and decimal point as single token
-- [ ] Implement Queue data structure
+- [x] Replace symbol of function (e.g. 'x' in 'f(x)') with number while function value calculation (e.g. 'f(10)') before using [Shunting_yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm)
 - [ ] Implement token detection
 - [ ] Implement [Shunting_yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm)
 - [ ] Implement Reverse Polish Notation Calculation
