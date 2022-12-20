@@ -7,18 +7,6 @@
 
 import Foundation
 
-//enum Token {
-//    case add
-//    case subtract
-//    case multiply
-//    case divide
-//    case power
-//    case number
-//    case rightParenthesis
-//    case leftParenthesis
-//    case OTHER
-//}
-
 struct Stack<T> {
     private var elements: [T] = []
     
@@ -36,6 +24,89 @@ struct Stack<T> {
     
     func getLast() -> T? {
         return self.isEmpty() ? nil : elements.last
+    }
+}
+
+enum OperatorType{
+    case add
+    case subtract
+    case divide
+    case multiply
+    case exponent
+    case openBracket // originally, there were no brackets, because they're not operators, but then I realized, that it'll be on stack and it'll be cool to use a stack of type "Operator" :)
+}
+
+enum OperatorPrecedence: Int {
+    case high = 3
+    case meduim = 2
+    case low = 1
+    case zero = 0
+}
+
+enum OperatorAssociativity {
+    case left
+    case right
+    case none
+}
+
+struct Operator {
+    private let type: OperatorType
+    private let precedence: OperatorPrecedence
+    private let associativity: OperatorAssociativity
+    private let originalToken: String
+    
+    init(token: String) {
+        switch token { // break isn't necessary in Swift switch-case
+        case "*":
+            self.originalToken = "*"
+            self.type = .multiply
+            self.precedence = .meduim
+            self.associativity = .left
+        case "/":
+            self.originalToken = "/"
+            self.type = .divide
+            self.precedence = .meduim
+            self.associativity = .left
+        case "+":
+            self.originalToken = "+"
+            self.type = .add
+            self.precedence = .low
+            self.associativity = .left
+        case "-":
+            self.originalToken = "-"
+            self.type = .subtract
+            self.precedence = .low
+            self.associativity = .left
+        case "^":
+            self.originalToken = "^"
+            self.type = .exponent
+            self.precedence = .high
+            self.associativity = .right
+        case "(":
+            self.originalToken = "^"
+            self.type = .openBracket
+            self.precedence = .zero
+            self.associativity = .none
+        default:
+            print("Unknown operator")
+            exit(1)
+        }
+    }
+    
+    func getType() -> OperatorType {
+        return self.type
+    }
+    
+    func getPrecedence() -> OperatorPrecedence {
+        return self.precedence
+    }
+    
+    func getAssociativity() -> OperatorAssociativity {
+        return self.associativity
+    }
+    
+    func getOriginalToken() -> String {
+        return self.originalToken
     }
 }
 
@@ -60,7 +131,7 @@ while var line: String = readLine() {
     line = line.filter {$0 != " "} // functional way
     
     // Name: expressionPattern
-    // Example: f1(x) = 2*x^2 +0.5x - 6/(3 + 9)
+    // Example: f1(x) = 2*x^2 +0.5*x - 6/(3 + 9)
     // Description:
     // ^ - begining of expression
     // [a-zA-Z]+ - any character (function name can't start with digit)
@@ -120,6 +191,7 @@ while var line: String = readLine() {
         let symbolsArray = expressionOfFunc.map { String($0) == funcDict[nameOfFunc]?.symbol ?  String(value) : String($0) } // convert to Array of Strings and replace symbol with value
         
         var postfixQueue: [String] = []
+        var stack: Stack<Operator> = Stack()
         
         // var currentToken: Token = .OTHER
         
@@ -137,9 +209,50 @@ while var line: String = readLine() {
             
             print(currentToken)
             
+            // shunting yard algorithm to convert from infix to postfix
+            //            1. For all the input tokens:
+            //                1. Read the next token
+            //                2. If token is an operator (x)
+            //                    1. While there is an operator (y) at the top of the operators stack and either (x) is left-associative and its precedence is less or equal to that of (y), or (x) is right-associative and its precedence is less than (y)
+            //                        1. Pop (y) from the stack
+            //                        2. Add (y) output buffer
+            //                    2. Push (x) on the stack
+            //                3. Else if token is left parenthesis, then push it on the stack
+            //                4. Else if token is a right parenthesis
+            //                    1. Until the top token (from the stack) is left parenthesis, pop from the stack to the output buffer
+            //                    2. Also pop the left parenthesis but don’t include it in the output buffer
+            //                5. Else add token to output buffer
+            //            2. Pop any remaining operator tokens from the stack to the output
+            
+            let operatorsArray: [String] = ["*", "/", "+", "-", "^"] // to not write multiple ||
+            if operatorsArray.contains(currentToken) {
+                let op: Operator = Operator(token: currentToken)
+                while (!stack.isEmpty() && stack.getLast()!.getPrecedence().rawValue >= op.getPrecedence().rawValue && op.getAssociativity() == OperatorAssociativity.left) || (!stack.isEmpty() && stack.getLast()!.getPrecedence().rawValue > op.getPrecedence().rawValue && op.getAssociativity() == OperatorAssociativity.right) {
+                    
+                    postfixQueue.append(stack.getLast()!.getOriginalToken())
+                    stack.pop()
+                }
+                stack.push(newElement: op)
+            } else if currentToken == "(" {
+                stack.push(newElement: Operator(token: currentToken))
+            } else if currentToken == ")" {
+                while(stack.getLast()?.getType() != OperatorType.openBracket) {
+                    postfixQueue.append(stack.getLast()!.getOriginalToken())
+                    stack.pop()
+                }
+                stack.pop() // popping "(" from stack
+            } else {
+                postfixQueue.append(currentToken)
+            }
+
             currentToken = ""
             currentIndex += 1
         }
+        while !stack.isEmpty() {
+            postfixQueue.append(stack.getLast()!.getOriginalToken())
+            stack.pop()
+        }
+        print(postfixQueue)
     } else {
         print("Please enter a valid string!")
     }
