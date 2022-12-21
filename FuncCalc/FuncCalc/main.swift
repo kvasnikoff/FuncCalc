@@ -83,7 +83,7 @@ struct Operator {
             self.precedence = .high
             self.associativity = .right
         case "(":
-            self.originalToken = "^"
+            self.originalToken = "("
             self.type = .openBracket
             self.precedence = .zero
             self.associativity = .none
@@ -107,6 +107,38 @@ struct Operator {
     
     func getOriginalToken() -> String {
         return self.originalToken
+    }
+}
+
+class Node<T> {
+    var value: T
+    var left: Node?
+    var right: Node?
+    init(value: T) {
+        self.value = value
+    }
+}
+
+func eval(root: Node<String>) -> Double {
+    
+    if (root.left == nil && root.right == nil) {
+        return Double(root.value)!;
+    }
+    
+    let leftValue = eval(root: root.left!);
+    
+    let rightValue = eval(root: root.right!);
+    
+    if (root.value == "+") {
+        return leftValue + rightValue
+    } else if (root.value == "-") {
+        return leftValue - rightValue
+    } else if (root.value == "*") {
+        return leftValue * rightValue
+    } else if (root.value == "/") {
+        return leftValue / rightValue }
+    else  { // exponent
+        return pow(leftValue, rightValue)
     }
 }
 
@@ -192,6 +224,7 @@ while var line: String = readLine() {
         
         var postfixQueue: [String] = []
         var stack: Stack<Operator> = Stack()
+        let operatorsArray: [String] = ["*", "/", "+", "-", "^"] // to not write multiple ||
         
         // var currentToken: Token = .OTHER
         
@@ -207,7 +240,7 @@ while var line: String = readLine() {
                 currentToken += symbolsArray[currentIndex]
             }
             
-            print(currentToken)
+            //            print(currentToken)
             
             // shunting yard algorithm to convert from infix to postfix
             //            1. For all the input tokens:
@@ -224,7 +257,6 @@ while var line: String = readLine() {
             //                5. Else add token to output buffer
             //            2. Pop any remaining operator tokens from the stack to the output
             
-            let operatorsArray: [String] = ["*", "/", "+", "-", "^"] // to not write multiple ||
             if operatorsArray.contains(currentToken) {
                 let op: Operator = Operator(token: currentToken)
                 while (!stack.isEmpty() && stack.getLast()!.getPrecedence().rawValue >= op.getPrecedence().rawValue && op.getAssociativity() == OperatorAssociativity.left) || (!stack.isEmpty() && stack.getLast()!.getPrecedence().rawValue > op.getPrecedence().rawValue && op.getAssociativity() == OperatorAssociativity.right) {
@@ -244,7 +276,7 @@ while var line: String = readLine() {
             } else {
                 postfixQueue.append(currentToken)
             }
-
+            
             currentToken = ""
             currentIndex += 1
         }
@@ -252,7 +284,31 @@ while var line: String = readLine() {
             postfixQueue.append(stack.getLast()!.getOriginalToken())
             stack.pop()
         }
-        print(postfixQueue)
+        
+        
+        //        print(postfixQueue)
+        
+        // Expression Tree creation from Postfix Notation
+        var nodeStack: Stack<Node<String>> = Stack()
+        for element in postfixQueue {
+            if !operatorsArray.contains(element) {
+                nodeStack.push(newElement: Node(value: element))
+                
+            } else {
+                let rightNode = nodeStack.getLast()
+                nodeStack.pop()
+                let lefNode = nodeStack.getLast()
+                nodeStack.pop()
+                let parentNode = Node(value: element)
+                parentNode.left = lefNode
+                parentNode.right = rightNode
+                nodeStack.push(newElement: parentNode)
+            }
+            
+        }
+        print(nodeStack)
+        print(eval(root: nodeStack.getLast()!))
+        
     } else {
         print("Please enter a valid string!")
     }

@@ -74,8 +74,8 @@ f3’(x) = 2x + 3
 - [x] Replace symbol of function (e.g. 'x' in 'f(x)') with number while function value calculation (e.g. 'f(10)') before using [Shunting_yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm)
 - [x] Implement token detection
 - [x] Implement [Shunting_yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm)
-- [ ] Implement Expression Tree creation from Postfix Notation
-- [ ] Implement evaluation of Expression Tree
+- [x] Implement Expression Tree creation from Postfix Notation
+- [x] Implement evaluation of Expression Tree
 - [ ] Implement symbolic differentiation
 - [ ] Refactor
 
